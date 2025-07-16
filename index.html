@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>jsQR 实时扫码</title>
+  <style>
+    body { font-family: sans-serif; background: #f8f8f8; text-align: center; }
+    video, canvas { border: 1px solid #ccc; margin: 8px; }
+    #result { margin-top: 20px; font-size: 1.2em; color: #138c18; }
+  </style>
+</head>
+<body>
+  <h1>jsQR 实时扫码 Demo</h1>
+  <video id="video" width="320" height="240" autoplay></video>
+  <canvas id="canvas" width="320" height="240" style="display:none"></canvas>
+  <div id="result">请将二维码对准摄像头</div>
+  <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const resultDiv = document.getElementById('result');
+    let scanning = true;
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(function(stream) {
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        requestAnimationFrame(scanQRCode);
+      });
+
+    function scanQRCode() {
+      if (!scanning) return;
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        if (code) {
+          resultDiv.textContent = "二维码内容: " + code.data;
+          scanning = false;
+          video.srcObject.getTracks().forEach(track => track.stop());
+        } else {
+          resultDiv.textContent = "未检测到二维码，请继续对准摄像头";
+        }
+      }
+      requestAnimationFrame(scanQRCode);
+    }
+  </script>
+</body>
+</html>
