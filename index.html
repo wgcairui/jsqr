@@ -11,8 +11,8 @@
 </head>
 <body>
   <h1>jsQR 实时扫码 Demo</h1>
-  <video id="video" width="640" height="480" autoplay></video>
-  <canvas id="canvas" width="640" height="480" style="display:none"></canvas>
+  <video id="video" width="100%" height="100%" autoplay></video>
+  <canvas id="canvas" width="100%" height="100%" style="display:none"></canvas>
   <div id="result">请将二维码对准摄像头</div>
   <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
   <script>
@@ -41,6 +41,7 @@
         if (code) {
           resultDiv.textContent = "二维码内容: " + code.data;
           scanning = false;
+          alert(code.data);
           video.srcObject.getTracks().forEach(track => track.stop());
         } else {
           resultDiv.textContent = "未检测到二维码，请继续对准摄像头";
